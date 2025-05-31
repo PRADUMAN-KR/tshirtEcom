@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -16,6 +18,10 @@ export function Navbar() {
   const { items: wishlistItems } = useWishlist()
   const { user, logout } = useAuth()
 
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const router = useRouter()
+
   const cartItemsCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
   const navLinks = [
@@ -24,6 +30,41 @@ export function Navbar() {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ]
+  
+  const searchRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+
+    if (searchOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchOpen]);
+
+
+ const handleSearch = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const trimmed = searchTerm.trim();
+
+  if (trimmed === "") {
+    setSearchOpen(false);
+    return;
+  }
+  router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+  setSearchTerm("");
+  setSearchOpen(false);
+};
+
+
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -34,6 +75,7 @@ export function Navbar() {
             <span className="text-xl font-bold">TeeStyle</span>
           </Link>
         </div>
+  
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
@@ -46,9 +88,28 @@ export function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5" />
-          </Button>
+           {searchOpen ? (
+                <form
+                ref={searchRef} 
+                onSubmit={handleSearch} className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search..."
+                    className="border rounded px-3 py-1 text-sm outline-none focus:border-purple-500 focus:shadow-[0_0_8px_#a855f7]"
+                    autoFocus
+                  />
+                  <Button type="submit" variant="ghost" size="icon">
+                    <Search className="h-5 w-5" />
+                  </Button>
+                </form>
+              ) : (
+                <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
+                  <Search className="h-5 w-5" />
+                </Button>
+              )}
+              
           <Link href="/wishlist">
             <Button variant="ghost" size="icon" className="relative">
               <Heart className="h-5 w-5" />
