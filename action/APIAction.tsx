@@ -40,3 +40,17 @@ export const listProductDetails = async (id, query) => {
     console.log("Banner fetching error:", e);
   }
 };
+
+
+export const search_product = async (query) => {
+  try {
+    const response = await axios.get(`${ENDPOINTS.search_product}?q=${encodeURIComponent(query)}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (e) {
+    console.error('Error while searching:', e);
+  }
+};

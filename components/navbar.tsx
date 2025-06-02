@@ -33,6 +33,8 @@ export function Navbar() {
   
   const searchRef = useRef<HTMLFormElement>(null);
 
+
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -50,20 +52,19 @@ export function Navbar() {
   }, [searchOpen]);
 
 
- const handleSearch = (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const trimmed = searchTerm.trim();
+    const trimmed = searchTerm.trim();
 
-  if (trimmed === "") {
+    if (trimmed === "") {
+      setSearchOpen(false);
+      return;
+    }
+    router.push(`/search?q=${encodeURIComponent(trimmed)}`); 
+    setSearchTerm("");
     setSearchOpen(false);
-    return;
-  }
-  router.push(`/search?q=${encodeURIComponent(trimmed)}`);
-  setSearchTerm("");
-  setSearchOpen(false);
-};
-
+  };
 
 
   return (
@@ -88,7 +89,7 @@ export function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
-           {searchOpen ? (
+          {searchOpen ? (
                 <form
                 ref={searchRef} 
                 onSubmit={handleSearch} className="flex items-center space-x-2">
@@ -108,7 +109,12 @@ export function Navbar() {
                 <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
                   <Search className="h-5 w-5" />
                 </Button>
-              )}
+               )}
+
+
+
+
+
               
           <Link href="/wishlist">
             <Button variant="ghost" size="icon" className="relative">
